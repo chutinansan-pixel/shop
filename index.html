@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ร้านยาสระผมสมุนไพร</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    img { width: 120px; height: 120px; object-fit: cover; }
+    input, textarea, button { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; }
+    button { background: #2e7d32; color: white; border: none; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>🌿 ร้านยาสระผมสมุนไพร <a href="admin.html" style="font-size:14px; float:right;">[เข้าหน้าแอดมิน]</a></h2>
+
+  <div class="card">
+    <img src="images/sku1.jpg" alt="SKU 1">
+    <h3>SKU-01: สูตรลดผมร่วง (290 บาท)</h3>
+    จำนวน (ขวด): <input type="number" id="s1" value="0" min="0">
+  </div>
+
+  <div class="card">
+    <img src="images/sku2.jpg" alt="SKU 2">
+    <h3>SKU-02: สูตรผมนุ่มลื่น (320 บาท)</h3>
+    จำนวน (ขวด): <input type="number" id="s2" value="0" min="0">
+  </div>
+
+  <h3> ข้อมูลจัดส่ง</h3>
+  ชื่อผู้รับ: <input type="text" id="name" required>
+  เบอร์โทร: <input type="text" id="phone" required>
+  ที่อยู่: <textarea id="address" rows="3" required></textarea>
+  <button onclick="order()">ยืนยันการสั่งซื้อ</button>
+
+  <script>
+    const URL = 'https://script.google.com/macros/s/AKfycbzQ6w9jRjeAsnnmffhd5Pz6zlnZgIFYpuKctyihI954QRHkkFaJGcraApDPty_Bi4Dc/exec';
+
+    async function order() {
+      const s1 = Number(document.getElementById('s1').value);
+      const s2 = Number(document.getElementById('s2').value);
+      if (s1 + s2 === 0) return alert('กรุณาเลือกสินค้าอย่างน้อย 1 ขวด');
+
+      await fetch(URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'add',
+          name: document.getElementById('name').value,
+          phone: document.getElementById('phone').value,
+          address: document.getElementById('address').value,
+          sku1: s1, sku2: s2, total: (s1 * 290) + (s2 * 320)
+        })
+      });
+      alert('สั่งซื้อสำเร็จ!');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
+</body>
+</html>
