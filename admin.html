@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ระบบแพ็คสินค้าและใบจ่าหน้า</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    .box { border: 1px solid #999; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    button { padding: 8px 12px; cursor: pointer; margin-right: 5px; }
+    @media print {
+      body * { visibility: hidden; }
+      #label, #label * { visibility: visible; }
+      #label { position: absolute; left: 0; top: 0; border: 2px solid black; padding: 20px; width: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <h2> ระบบหยิบสินค้า & พิมพ์ใบจ่าหน้า <a href="index.html" style="font-size:14px;">[กลับหน้าร้าน]</a></h2>
+  <div id="list">กำลังโหลดข้อมูล...</div>
+
+  <div id="label" style="display:none;">
+    <h3>ผู้ส่ง: ร้านยาสระผมสมุนไพร (โทร 080-000-0000)</h3>
+    <hr>
+    <h2 id="p-name"></h2>
+    <p id="p-phone"></p>
+    <p id="p-addr"></p>
+    <hr>
+    <p id="p-items"></p>
+  </div>
+
+  <script>
+    const URL = 'https://script.google.com/macros/s/AKfycbzQ6w9jRjeAsnnmffhd5Pz6zlnZgIFYpuKctyihI954QRHkkFaJGcraApDPty_Bi4Dc/exec';
+
+    async function load() {
+      const res = await fetch(URL);
+      const data = await res.json();
+      let html = '';
+
+      for (let i = 1; i < data.length; i++) {
+        const r = data[i];
+        html += `
+          <div class="box">
+            <b>ออเดอร์: ${r[0]}</b> | สถานะ: <b style="color:green">${r[7]}</b><br>
+            ลูกค้า: ${r[1]} (${r[2]}) | ที่อยู่: ${r[3]}<br><br>
+            <b>📋 รายการหยิบของ:</b><br>
+            <label><input type="checkbox"> SKU-01 (ลดผมร่วง): <b>${r[4]} ขวด</b></label><br>
+            <label><input type="checkbox"> SKU-02 (ผมนุ่มลื่น): <b>${r[5]} ขวด</b></label><br><br>
+            <button onclick="pack(${i + 1})"> ยืนยันแพ็คสินค้า</button>
+            <button onclick="printBox('${r[1]}','${r[2]}','${r[3]}',${r[4]},${r[5]})"> พิมพ์ใบจ่าหน้า</button>
+          </div>`;
+      }
+      document.getElementById('list').innerHTML = html || 'ยังไม่มีออเดอร์';
+    }
+
+    async function pack(row) {
+      await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'pack', row: row }) });
+      alert('อัปเดตสถานะแพ็คสินค้าเรียบร้อย');
+      load();
+    }
+
+    function printBox(name, phone, addr, s1, s2) {
+      document.getElementById('p-name').innerText = 'ผู้รับ: ' + name;
+      document.getElementById('p-phone').innerText = 'โทร: ' + phone;
+      document.getElementById('p-addr').innerText = 'ที่อยู่: ' + addr;
+      document.getElementById('p-items').innerText = `สินค้าในกล่อง: SKU-01 (${s1} ขวด), SKU-02 (${s2} ขวด)`;
+      document.getElementById('label').style.display = 'block';
+      window.print();
+      document.getElementById('label').style.display = 'none';
+    }
+
+    load();
+  </script>
+</body>
+</html>
